@@ -47,7 +47,6 @@ board.append(...spots);
 
 let round;
 let phase = "home";
-let paintedSpot = null;
 let timer;
 let audio;
 let lastTone = -Infinity;
@@ -97,16 +96,14 @@ function signal(kind) {
   });
 }
 
-function paintSpot(target) {
-  if (paintedSpot !== null) {
-    delete spots[paintedSpot].dataset.color;
-    spots[paintedSpot].setAttribute("aria-label", `Spot ${paintedSpot + 1}`);
-  }
-  paintedSpot = target?.spot ?? null;
-  if (paintedSpot !== null) {
-    spots[paintedSpot].dataset.color = target.color;
-    spots[paintedSpot].setAttribute("aria-label", `Active spot ${paintedSpot + 1}`);
-  }
+function paintTargets(targets = []) {
+  spots.forEach((button, index) => {
+    const target = targets.find((item) => item.spot === index);
+    if (button.dataset.color === target?.color) return;
+    if (target) button.dataset.color = target.color;
+    else delete button.dataset.color;
+    button.setAttribute("aria-label", `${target ? "Active spot" : "Spot"} ${index + 1}`);
+  });
 }
 
 function show(screen) {
@@ -116,7 +113,7 @@ function show(screen) {
   byId("readout").hidden = screen !== "game";
   countdown.hidden = true;
   setBoardEnabled(false);
-  paintSpot(screen === "home" ? { spot: 7, color: "pink" } : null);
+  paintTargets(screen === "home" ? [{ spot: 7, color: "pink" }] : []);
 }
 
 function setBoardEnabled(enabled) {
@@ -147,7 +144,7 @@ function startCountdown() {
   clearTimeout(timer);
   phase = "countdown";
   setBoardEnabled(false);
-  paintSpot(null);
+  paintTargets();
   countdown.hidden = false;
   const end = performance.now() + 3000;
 
@@ -159,9 +156,9 @@ function startCountdown() {
       phase = "playing";
       countdown.hidden = true;
       setBoardEnabled(true);
-      if (round.target) round.resume(now);
-      else round.activate(now);
-      paintSpot(round.target);
+      if (round.targets.length) round.resume(now);
+      else round.fillTargets(now);
+      paintTargets(round.targets);
       scheduleExpiry();
       return;
     }
@@ -176,7 +173,7 @@ function startCountdown() {
 
 function scheduleExpiry() {
   clearTimeout(timer);
-  timer = setTimeout(onExpiry, Math.max(0, Math.ceil(round.target.deadline - performance.now())));
+  timer = setTimeout(onExpiry, Math.max(0, Math.ceil(round.deadline - performance.now())));
 }
 
 function onExpiry() {
@@ -215,7 +212,7 @@ function renderOutcome(result, index) {
     finish();
     return;
   }
-  if (result !== "wrong") paintSpot(round.target);
+  if (result !== "wrong") paintTargets(round.targets);
   if (index !== undefined && result !== "miss") animateTap(spots[index], result === "hit");
   signal(result);
   if (result !== "wrong") scheduleExpiry();
@@ -250,7 +247,7 @@ function leavePage() {
   }
   phase = "away";
   setBoardEnabled(false);
-  paintSpot(null);
+  paintTargets();
   countdown.textContent = "";
   countdown.hidden = true;
 }

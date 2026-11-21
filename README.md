@@ -27,8 +27,10 @@ For a manual check, play through the countdown, hit a spot, tap a wrong spot, an
 | File | Controls |
 | --- | --- |
 | `dist/styles.css` | The palette at the top of the file, the 55px `--spot-size`, touch targets, and responsive layout |
-| `dist/rules.js` | The 2,000ms starting window, 0.98 speed multiplier, spot count, and scoring rules |
+| `dist/rules.js` | The 2,000ms starting window, 1% decrease every three spots shown, 1,000ms two-spot threshold, 350ms minimum, and scoring rules |
 | `dist/game.js` | The countdown, arcade sound cues, animation timing, vibration, and local storage |
 | `dist/index.html` | The screen structure and visible game text |
 
-Sound and vibration default to ON. Vibration depends on the device and browser. Best scores and preferences are local to each browser profile and site address. At very high hit counts, the shrinking reaction window can fall below the browser's timer and display resolution.
+Hits and misses both advance the pace because both cause new spots to appear. Each active spot keeps its own deadline. At the two-spot threshold, hitting or missing one spot replaces it while the other continues counting down.
+
+Sound and vibration default to ON. Vibration depends on the device and browser. Best scores and preferences are local to each browser profile and site address.
