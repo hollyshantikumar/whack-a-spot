@@ -5,6 +5,21 @@ const byId = (id) => document.getElementById(id);
 const cabinet = byId("cabinet");
 const board = byId("board");
 const countdown = byId("countdown");
+const backgroundMusic = new Audio("background-music.mp3");
+backgroundMusic.loop = true;
+backgroundMusic.preload = "auto";
+const countdownTick = new Audio("countdown-tick.wav");
+countdownTick.preload = "auto";
+const goSound = new Audio("go.wav");
+goSound.preload = "auto";
+const hitSound = new Audio("hit.wav");
+hitSound.preload = "auto";
+const timeoutSound = new Audio("timeout.wav");
+timeoutSound.preload = "auto";
+const twoSpotSound = new Audio("two-spots.wav");
+twoSpotSound.preload = "auto";
+const gameOverSound = new Audio("game-over.wav");
+gameOverSound.preload = "auto";
 const motion = matchMedia("(prefers-reduced-motion: reduce)");
 const storageKey = "whack-a-spot.v1";
 
@@ -14,10 +29,11 @@ function loadPreferences() {
     return {
       best: Number.isSafeInteger(saved.best) && saved.best >= 0 ? saved.best : 0,
       sound: saved.sound !== false,
+      music: saved.music !== false,
       vibration: saved.vibration !== false,
     };
   } catch {
-    return { best: 0, sound: true, vibration: true };
+    return { best: 0, sound: true, music: true, vibration: true };
   }
 }
 
@@ -50,12 +66,13 @@ let phase = "home";
 let timer;
 let audio;
 let lastTone = -Infinity;
+let twoSpotsAnnounced = false;
 
 const feedback = {
-  hit: { tones: [523, 784], vibration: 18 },
+  hit: { clip: hitSound, vibration: 18 },
   wrong: { tones: [233, 147], vibration: 40 },
-  miss: { tones: [196], vibration: 32 },
-  over: { tones: [392, 294, 196], vibration: [45, 45, 90] },
+  miss: { clip: timeoutSound, vibration: 32 },
+  over: { clip: gameOverSound, vibration: [45, 45, 90] },
 };
 
 function unlockAudio() {
@@ -69,6 +86,17 @@ function unlockAudio() {
   }
 }
 
+function playClip(clip) {
+  if (!preferences.sound) return;
+  clip.currentTime = 0;
+  clip.play().catch(() => {});
+}
+
+function playBackgroundMusic() {
+  if (!preferences.music || document.hidden || !backgroundMusic.paused) return;
+  backgroundMusic.play().catch(() => {});
+}
+
 function signal(kind) {
   if (document.hidden) return;
   const now = performance.now();
@@ -78,6 +106,10 @@ function signal(kind) {
   const cue = feedback[kind];
 
   if (preferences.vibration) navigator.vibrate?.(cue.vibration);
+  if (cue.clip) {
+    playClip(cue.clip);
+    return;
+  }
   if (!preferences.sound || audio?.state !== "running") return;
 
   const start = audio.currentTime;
@@ -104,6 +136,10 @@ function paintTargets(targets = []) {
     else delete button.dataset.color;
     button.setAttribute("aria-label", `${target ? "Active spot" : "Spot"} ${index + 1}`);
   });
+  if (targets.length === 2 && !twoSpotsAnnounced) {
+    twoSpotsAnnounced = true;
+    playClip(twoSpotSound);
+  }
 }
 
 function show(screen) {
@@ -127,14 +163,18 @@ function updateReadout() {
 
 function home() {
   clearTimeout(timer);
+  gameOverSound.pause();
   phase = "home";
   byId("home-best").textContent = preferences.best;
   show("home");
 }
 
 function start() {
+  gameOverSound.pause();
   unlockAudio();
+  playBackgroundMusic();
   round = new Round();
+  twoSpotsAnnounced = false;
   show("game");
   updateReadout();
   startCountdown();
@@ -147,6 +187,7 @@ function startCountdown() {
   paintTargets();
   countdown.hidden = false;
   const end = performance.now() + 3000;
+  let previousNumber;
 
   function tick() {
     if (phase !== "countdown" || document.hidden) return;
@@ -159,12 +200,18 @@ function startCountdown() {
       if (round.targets.length) round.resume(now);
       else round.fillTargets(now);
       paintTargets(round.targets);
+      playBackgroundMusic();
+      playClip(goSound);
       scheduleExpiry();
       return;
     }
 
     const number = Math.ceil(remaining / 1000);
-    countdown.textContent = number;
+    if (number !== previousNumber) {
+      previousNumber = number;
+      countdown.textContent = number;
+      playClip(countdownTick);
+    }
     timer = setTimeout(tick, remaining - (number - 1) * 1000);
   }
 
@@ -220,6 +267,7 @@ function renderOutcome(result, index) {
 
 function finish() {
   clearTimeout(timer);
+  backgroundMusic.pause();
   phase = "results";
   const record = round.score > preferences.best;
   if (record) {
@@ -235,8 +283,15 @@ function finish() {
 }
 
 function leavePage() {
+  backgroundMusic.pause();
+  gameOverSound.pause();
   if (phase !== "playing" && phase !== "countdown") return;
   clearTimeout(timer);
+  countdownTick.pause();
+  goSound.pause();
+  hitSound.pause();
+  timeoutSound.pause();
+  twoSpotSound.pause();
   if (phase === "playing") {
     round.suspend(performance.now());
     if (round.lives === 0) {
@@ -269,7 +324,7 @@ function updateSetting(key) {
   toggle.textContent = preferences[key] ? "ON" : "OFF";
 }
 
-for (const key of ["sound", "vibration"]) {
+for (const key of ["sound", "music", "vibration"]) {
   updateSetting(key);
   byId(key).addEventListener("click", () => {
     preferences[key] = !preferences[key];
