@@ -228,3 +228,19 @@ test("the game can keep going at the 350ms floor", () => {
   assert.equal(round.targets.length, 2);
   for (const target of round.targets) assert.equal(target.deadline - target.startedAt, 350);
 });
+
+test("Hard Mode uses all 20 spots, starts at two seconds, and stops speeding up at 280ms", () => {
+  const round = plainRound(() => 0.999, { mode: "hard" });
+  round.fillTargets(0);
+  assert.equal(firstTarget(round).spot, 19);
+  assert.equal(round.deadline, 2000);
+  const reachedAt = reachTwoSpots(round);
+
+  for (let now = reachedAt + 1; now <= 350; now += 1) {
+    assert.equal(round.tap(firstTarget(round).spot, now), "hit");
+  }
+
+  assert.equal(round.targets.length, 2);
+  assert.equal(round.duration, 280);
+  for (const target of round.targets) assert.equal(target.total, 280);
+});

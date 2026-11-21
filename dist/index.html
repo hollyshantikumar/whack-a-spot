@@ -13,7 +13,7 @@
 <body>
   <main class="cabinet" id="cabinet" data-screen="home">
     <header class="masthead">
-      <h1>WHACK-A-SPOT</h1>
+      <h1 id="game-title">WHACK-A-SPOT</h1>
     </header>
 
     <div class="readout three" id="readout" hidden>
@@ -29,8 +29,12 @@
     <button class="action secondary pause" id="pause" type="button" hidden>PAUSE</button>
 
     <section class="screen" id="home" aria-label="Home">
-      <div class="best"><span>BEST SCORE</span><strong id="home-best">0</strong></div>
-      <button class="action primary" id="play" type="button">PLAY <kbd class="key-hint">ENTER</kbd></button>
+      <div class="readout">
+        <div class="meter"><span>CLASSIC BEST</span><strong id="home-best">0</strong></div>
+        <div class="meter"><span>HARD BEST</span><strong id="hard-best">0</strong></div>
+      </div>
+      <button class="action primary" id="play" type="button">PLAY CLASSIC <kbd class="key-hint">ENTER</kbd></button>
+      <button class="action secondary hard-action" id="hard-play" type="button">HARD MODE</button>
       <button class="action secondary" id="instructions-open" type="button">INSTRUCTIONS</button>
       <button class="action secondary" id="settings-open" type="button">SETTINGS</button>
     </section>
@@ -47,7 +51,8 @@
           <div><dt>WRONG SPOT</dt><dd>−1 POINT · −1 LIFE</dd></div>
           <div><dt>EVERY 10 HITS</dt><dd>+1 LIFE (MAX 5)</dd></div>
         </dl>
-        <p class="keys-help">KEYBOARD: <kbd>Q</kbd>–<kbd>T</kbd> · <kbd>A</kbd>–<kbd>G</kbd> · <kbd>Z</kbd>–<kbd>B</kbd> MATCH THE THREE ROWS.</p>
+        <p>HARD MODE: 20 SPOTS · 280 MS MINIMUM.</p>
+        <p class="keys-help">KEYBOARD: <kbd>Q</kbd>–<kbd>T</kbd> · <kbd>A</kbd>–<kbd>G</kbd> · <kbd>Z</kbd>–<kbd>B</kbd>. HARD MODE ALSO USES <kbd>1</kbd>–<kbd>5</kbd>.</p>
       </div>
       <button class="action secondary" id="instructions-home" type="button">HOME</button>
     </section>

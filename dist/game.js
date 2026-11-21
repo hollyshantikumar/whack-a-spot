@@ -1,6 +1,6 @@
 "use strict";
 
-const { Round, SPOT_COUNT, MAX_LIVES } = globalThis.WhackRules;
+const { Round, MODES, MAX_LIVES } = globalThis.WhackRules;
 const byId = (id) => document.getElementById(id);
 const cabinet = byId("cabinet");
 const arena = byId("arena");
@@ -35,6 +35,7 @@ const KEY_CODES = [
   "KeyA", "KeyS", "KeyD", "KeyF", "KeyG",
   "KeyZ", "KeyX", "KeyC", "KeyV", "KeyB",
 ];
+const HARD_KEY_CODES = ["Digit1", "Digit2", "Digit3", "Digit4", "Digit5", ...KEY_CODES];
 const GLYPHS = { bonus: "★", trap: "✕" };
 
 function loadPreferences() {
@@ -42,12 +43,13 @@ function loadPreferences() {
     const saved = JSON.parse(localStorage.getItem(storageKey)) ?? {};
     return {
       best: Number.isSafeInteger(saved.best) && saved.best >= 0 ? saved.best : 0,
+      hardBest: Number.isSafeInteger(saved.hardBest) && saved.hardBest >= 0 ? saved.hardBest : 0,
       sound: saved.sound !== false,
       music: saved.music !== false,
       vibration: saved.vibration !== false,
     };
   } catch {
-    return { best: 0, sound: true, music: true, vibration: true };
+    return { best: 0, hardBest: 0, sound: true, music: true, vibration: true };
   }
 }
 
@@ -61,7 +63,7 @@ function savePreferences() {
   }
 }
 
-const spots = Array.from({ length: SPOT_COUNT }, (_, index) => {
+const spots = Array.from({ length: MODES.hard.spotCount }, (_, index) => {
   const button = document.createElement("button");
   button.type = "button";
   button.className = "spot";
@@ -89,7 +91,6 @@ const spots = Array.from({ length: SPOT_COUNT }, (_, index) => {
   const key = document.createElement("span");
   key.className = "key";
   key.setAttribute("aria-hidden", "true");
-  key.textContent = KEY_CODES[index].slice(3);
 
   button.append(ring, disc, key);
   button.addEventListener("click", (event) => tap(index, event));
@@ -98,6 +99,7 @@ const spots = Array.from({ length: SPOT_COUNT }, (_, index) => {
 board.append(...spots);
 
 let round;
+let mode = "classic";
 let phase = "home";
 let timer;
 let goTimer;
@@ -244,6 +246,9 @@ function jolt(strong) {
 
 function show(screen) {
   cabinet.dataset.screen = screen;
+  const hardScreen = mode === "hard" && (screen === "game" || screen === "results");
+  cabinet.dataset.mode = hardScreen ? "hard" : "classic";
+  byId("game-title").textContent = hardScreen ? "HARD MODE" : "WHACK-A-SPOT";
   document.documentElement.classList.toggle("playing", screen === "game");
   for (const name of ["home", "instructions", "settings", "results"]) byId(name).hidden = name !== screen;
   byId("readout").hidden = screen !== "game";
@@ -253,11 +258,18 @@ function show(screen) {
   countdown.hidden = true;
   clearCallout();
   setBoardEnabled(false);
+  const keyCodes = hardScreen ? HARD_KEY_CODES : KEY_CODES;
+  const { spotCount } = MODES[cabinet.dataset.mode];
+  board.setAttribute("aria-label", `${spotCount} spots`);
+  spots.forEach((spot, index) => {
+    spot.hidden = index >= spotCount;
+    spot.querySelector(".key").textContent = keyCodes[index]?.replace(/^(Key|Digit)/, "") ?? "";
+  });
   paintTargets(screen === "home" ? [{ spot: 7, color: "pink", kind: "normal" }] : []);
 }
 
 function setBoardEnabled(enabled) {
-  for (const spot of spots) spot.disabled = !enabled;
+  for (const spot of spots) spot.disabled = !enabled || spot.hidden;
 }
 
 function updateReadout() {
@@ -273,13 +285,15 @@ function home() {
   gameOverSound.pause();
   phase = "home";
   byId("home-best").textContent = preferences.best;
+  byId("hard-best").textContent = preferences.hardBest;
   show("home");
 }
 
-function start() {
+function start(selectedMode = "classic") {
+  mode = selectedMode;
   gameOverSound.pause();
   playBackgroundMusic();
-  round = new Round();
+  round = new Round(Math.random, { mode });
   twoSpotsAnnounced = false;
   lastLevel = 1;
   show("game");
@@ -362,7 +376,8 @@ document.addEventListener("keydown", (event) => {
   if (event.ctrlKey || event.metaKey || event.altKey) return;
 
   if (phase === "playing" || phase === "countdown") {
-    const index = KEY_CODES.indexOf(event.code);
+    const keyCodes = mode === "hard" ? HARD_KEY_CODES : KEY_CODES;
+    const index = keyCodes.indexOf(event.code);
     if (index === -1) return;
     event.preventDefault();
     if (!event.repeat) tap(index, event);
@@ -373,7 +388,7 @@ document.addEventListener("keydown", (event) => {
     // A focused button handles its own Enter and Space.
     if (document.activeElement?.tagName === "BUTTON") return;
     event.preventDefault();
-    start();
+    start(phase === "results" ? mode : "classic");
     return;
   }
 
@@ -429,14 +444,15 @@ function finish() {
   clearTimeout(timer);
   backgroundMusic.pause();
   phase = "results";
-  const previousBest = preferences.best;
+  const bestKey = mode === "hard" ? "hardBest" : "best";
+  const previousBest = preferences[bestKey];
   const record = round.score > previousBest;
   if (record) {
-    preferences.best = round.score;
+    preferences[bestKey] = round.score;
     savePreferences();
   }
   byId("final-score").textContent = round.score;
-  byId("final-best").textContent = preferences.best;
+  byId("final-best").textContent = preferences[bestKey];
   byId("final-streak").textContent = round.bestStreak;
   byId("final-level").textContent = round.level;
 
@@ -515,8 +531,9 @@ for (const key of ["sound", "music", "vibration"]) {
   });
 }
 
-byId("play").addEventListener("click", start);
-byId("again").addEventListener("click", start);
+byId("play").addEventListener("click", () => start());
+byId("hard-play").addEventListener("click", () => start("hard"));
+byId("again").addEventListener("click", () => start(mode));
 pauseButton.addEventListener("click", () => {
   if (phase === "paused") {
     startCountdown();

@@ -2,11 +2,14 @@
   "use strict";
 
   const SPOT_COUNT = 15;
+  const MODES = {
+    classic: { spotCount: SPOT_COUNT, minDuration: 350 },
+    hard: { spotCount: 20, minDuration: 280 },
+  };
   const START_DURATION = 2000;
   const SPOTS_PER_SPEED_STEP = 3;
   const SPEED_FACTOR = 0.97;
   const TWO_SPOT_DURATION = 1000;
-  const MIN_DURATION = 350;
   const START_LIVES = 3;
   const MAX_LIVES = 5;
   const HITS_PER_LIFE = 10;
@@ -19,8 +22,9 @@
   const COLORS = ["pink", "green", "cyan"];
 
   class Round {
-    constructor(random = Math.random, { bonusChance = BONUS_CHANCE, trapChance = TRAP_CHANCE } = {}) {
+    constructor(random = Math.random, { bonusChance = BONUS_CHANCE, trapChance = TRAP_CHANCE, mode = "classic" } = {}) {
       this.random = random;
+      this.config = MODES[mode];
       this.bonusChance = bonusChance;
       this.trapChance = trapChance;
       this.score = 0;
@@ -37,7 +41,7 @@
 
     get duration() {
       const steps = Math.floor(this.shown / SPOTS_PER_SPEED_STEP);
-      return Math.max(MIN_DURATION, START_DURATION * SPEED_FACTOR ** steps);
+      return Math.max(this.config.minDuration, START_DURATION * SPEED_FACTOR ** steps);
     }
 
     get level() {
@@ -57,7 +61,7 @@
     }
 
     spawn(now, kind, removed) {
-      const freeSpots = Array.from({ length: SPOT_COUNT }, (_, spot) => spot)
+      const freeSpots = Array.from({ length: this.config.spotCount }, (_, spot) => spot)
         .filter((spot) => !this.targets.some((target) => target.spot === spot));
       const spot = freeSpots[Math.floor(this.random() * freeSpots.length)];
       let color = kind;
@@ -159,7 +163,7 @@
     }
   }
 
-  const rules = { Round, SPOT_COUNT, MAX_LIVES, START_LIVES };
+  const rules = { Round, MODES, SPOT_COUNT, MAX_LIVES, START_LIVES };
   if (typeof module === "object" && module.exports) module.exports = rules;
   else globalThis.WhackRules = rules;
 })();

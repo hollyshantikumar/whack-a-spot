@@ -31,7 +31,7 @@ For a manual check, play through the countdown, hit a spot, tap a wrong spot, an
 | `dist/game.js` | The countdown and GO!, keyboard controls (Q–T / A–G / Z–B rows, Enter to start), timer rings, pop-ups and banners, arcade sound cues, vibration, and local storage |
 | `dist/index.html` | The screen structure and visible game text |
 
-On phones held upright, the board switches to a tall 3 × 5 grid with bigger spots.
+Classic uses 15 spots with a 350ms minimum. Hard Mode uses 20 spots with a 280ms minimum. Both modes start at two seconds, and each has its own best score. Phones held upright use three columns in Classic and four in Hard Mode, with five rows in either mode.
 
 Hits and misses both advance the pace (trap spots do not) because both cause new spots to appear. Each active spot keeps its own deadline. At the two-spot threshold, hitting or missing one spot replaces it while the other continues counting down.
 
