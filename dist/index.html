@@ -16,26 +16,33 @@
       <h1>WHACK-A-SPOT</h1>
     </header>
 
-    <div class="readout" id="readout" hidden>
+    <div class="readout three" id="readout" hidden>
       <div class="meter"><span>SCORE</span><strong id="score">0</strong></div>
-      <div class="meter"><span>LIVES</span><strong id="lives">1</strong></div>
+      <div class="meter"><span>LIVES</span><strong class="hearts" id="lives" aria-label="3 lives">♥♥♥</strong></div>
+      <div class="meter"><span>LEVEL</span><strong id="level">1</strong></div>
     </div>
     <div class="arena" id="arena">
       <div class="board" id="board" role="group" aria-label="Fifteen spots"></div>
+      <div class="callout" id="callout" aria-live="polite"></div>
       <div class="countdown" id="countdown" role="status" hidden></div>
     </div>
+    <button class="action secondary pause" id="pause" type="button" hidden>PAUSE</button>
 
     <section class="screen" id="home" aria-label="Home">
       <div class="best"><span>BEST SCORE</span><strong id="home-best">0</strong></div>
-      <button class="action primary" id="play" type="button">PLAY</button>
+      <button class="action primary" id="play" type="button">PLAY <kbd class="key-hint">ENTER</kbd></button>
       <button class="action secondary" id="settings-open" type="button">SETTINGS</button>
       <div class="instructions">
         <p>TAP LIT SPOTS BEFORE THEY VANISH.</p>
         <dl>
-          <div><dt>HIT</dt><dd>+1 POINT · +1 LIFE</dd></div>
+          <div><dt>HIT</dt><dd>+1 POINT</dd></div>
+          <div><dt><span class="chip bonus">★</span> GOLD SPOT</dt><dd>+3 POINTS</dd></div>
+          <div><dt><span class="chip trap">✕</span> TRAP SPOT</dt><dd>DON'T TAP IT!</dd></div>
           <div><dt>MISS</dt><dd>−1 LIFE</dd></div>
           <div><dt>WRONG SPOT</dt><dd>−1 POINT · −1 LIFE</dd></div>
+          <div><dt>EVERY 10 HITS</dt><dd>+1 LIFE (MAX 5)</dd></div>
         </dl>
+        <p class="keys-help">KEYBOARD: <kbd>Q</kbd>–<kbd>T</kbd> · <kbd>A</kbd>–<kbd>G</kbd> · <kbd>Z</kbd>–<kbd>B</kbd> MATCH THE THREE ROWS.</p>
       </div>
     </section>
 
@@ -49,12 +56,16 @@
 
     <section class="screen results" id="results" aria-labelledby="results-title" hidden>
       <h2 id="results-title" tabindex="-1">GAME OVER</h2>
-      <p class="record" id="record" hidden>NEW PERSONAL BEST!</p>
+      <p class="record" id="record">NEW PERSONAL BEST!</p>
       <div class="readout">
         <div class="meter"><span>FINAL SCORE</span><strong id="final-score">0</strong></div>
         <div class="meter"><span>BEST SCORE</span><strong id="final-best">0</strong></div>
       </div>
-      <button class="action primary" id="again" type="button">PLAY AGAIN</button>
+      <div class="readout">
+        <div class="meter small"><span>BEST STREAK</span><strong id="final-streak">0</strong></div>
+        <div class="meter small"><span>LEVEL REACHED</span><strong id="final-level">1</strong></div>
+      </div>
+      <button class="action primary" id="again" type="button">PLAY AGAIN <kbd class="key-hint">ENTER</kbd></button>
       <button class="action secondary" id="results-home" type="button">HOME</button>
     </section>
   </main>

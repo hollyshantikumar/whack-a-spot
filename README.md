@@ -27,10 +27,14 @@ For a manual check, play through the countdown, hit a spot, tap a wrong spot, an
 | File | Controls |
 | --- | --- |
 | `dist/styles.css` | The palette at the top of the file, the 55px `--spot-size`, touch targets, and responsive layout |
-| `dist/rules.js` | The 2,000ms starting window, 1% decrease every three spots shown, 1,000ms two-spot threshold, 350ms minimum, and scoring rules |
-| `dist/game.js` | The countdown, arcade sound cues, animation timing, vibration, and local storage |
+| `dist/rules.js` | The 2,000ms starting window, 3% decrease every three spots shown, 1,000ms two-spot threshold (about 70 spots in), 350ms minimum, 3 starting lives (max 5, +1 every 10 hits), levels every 15 spots, gold bonus spots (+3) and trap spots from level 2 |
+| `dist/game.js` | The countdown and GO!, keyboard controls (Q–T / A–G / Z–B rows, Enter to start), timer rings, pop-ups and banners, arcade sound cues, vibration, and local storage |
 | `dist/index.html` | The screen structure and visible game text |
 
-Hits and misses both advance the pace because both cause new spots to appear. Each active spot keeps its own deadline. At the two-spot threshold, hitting or missing one spot replaces it while the other continues counting down.
+On phones held upright, the board switches to a tall 3 × 5 grid with bigger spots.
+
+Hits and misses both advance the pace (trap spots do not) because both cause new spots to appear. Each active spot keeps its own deadline. At the two-spot threshold, hitting or missing one spot replaces it while the other continues counting down.
+
+Use PAUSE to freeze the board and its timers. RESUME starts a fresh countdown before the remaining reaction time runs again.
 
 Sound and vibration default to ON. Vibration depends on the device and browser. Best scores and preferences are local to each browser profile and site address.
