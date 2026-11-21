@@ -107,15 +107,71 @@ let goTimer;
 let lastFeedbackAt = -Infinity;
 let twoSpotsAnnounced = false;
 let lastLevel = 1;
+let hitContext;
+let hitBuffer;
+let hitLoad;
+const hitSources = new Set();
 
 const feedback = {
-  hit: { clip: hitSound, vibration: 18 },
-  bonus: { clip: hitSound, vibration: [18, 30, 18] },
+  hit: { vibration: 18 },
+  bonus: { vibration: [18, 30, 18] },
   wrong: { clip: wrongSpotSound, vibration: 40 },
   trap: { clip: wrongSpotSound, vibration: [40, 30, 40] },
   miss: { clip: timeoutSound, vibration: 32 },
   over: { clip: gameOverSound, vibration: [45, 45, 90] },
 };
+
+function prepareHitSound() {
+  const AudioContext = window.AudioContext || window.webkitAudioContext;
+  if (!preferences.sound || !AudioContext) return;
+  try {
+    hitContext ??= new AudioContext({ latencyHint: "interactive" });
+    if (hitContext.state !== "running") hitContext.resume().catch(() => {});
+    if (location.protocol === "file:") return;
+    hitLoad ??= fetch(hitSound.src)
+      .then((response) => {
+        if (!response.ok) throw new Error("Hit sound unavailable");
+        return response.arrayBuffer();
+      })
+      .then((data) => hitContext.decodeAudioData(data))
+      .then((buffer) => { hitBuffer = buffer; })
+      .catch(() => {}); // The synthesized cue covers a failed or unfinished download.
+  } catch {
+    // Browsers without usable Web Audio can still play the regular media clip.
+  }
+}
+
+function playHitSound() {
+  if (!preferences.sound) return;
+  if (hitContext?.state !== "running") {
+    prepareHitSound();
+    playClip(hitSound);
+    return;
+  }
+
+  const now = hitContext.currentTime;
+  let source;
+  if (hitBuffer) {
+    source = hitContext.createBufferSource();
+    source.buffer = hitBuffer;
+    source.connect(hitContext.destination);
+    source.start(now);
+  } else {
+    source = hitContext.createOscillator();
+    const gain = hitContext.createGain();
+    source.frequency.setValueAtTime(630, now);
+    source.frequency.exponentialRampToValueAtTime(910, now + 0.045);
+    gain.gain.setValueAtTime(0.001, now);
+    gain.gain.exponentialRampToValueAtTime(0.12, now + 0.004);
+    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.065);
+    source.connect(gain);
+    gain.connect(hitContext.destination);
+    source.start(now);
+    source.stop(now + 0.07);
+  }
+  hitSources.add(source);
+  source.onended = () => hitSources.delete(source);
+}
 
 function playClip(clip) {
   if (!preferences.sound) return;
@@ -131,13 +187,15 @@ function playBackgroundMusic() {
 function signal(kind) {
   const cue = feedback[kind];
   if (!cue || document.hidden) return;
+  const hit = kind === "hit" || kind === "bonus";
   const now = performance.now();
-  // Keep successive misses from stacking sound or haptic cues at very fast speeds.
-  if (kind !== "over" && now - lastFeedbackAt < 55) return;
+  // Every successful tap gets a cue, even just after another sound.
+  if (!hit && kind !== "over" && now - lastFeedbackAt < 55) return;
   lastFeedbackAt = now;
 
+  if (hit) playHitSound();
+  else playClip(cue.clip);
   if (preferences.vibration) navigator.vibrate?.(cue.vibration);
-  playClip(cue.clip);
 }
 
 function startRing(button, target) {
@@ -320,6 +378,7 @@ function start(selectedMode = "classic") {
 }
 
 function startCountdown() {
+  prepareHitSound();
   clearTimeout(timer);
   clearTimeout(goTimer);
   phase = "countdown";
@@ -429,6 +488,8 @@ function animateTap(spot, hit) {
 }
 
 function renderOutcome(result, index) {
+  const scored = result === "hit" || result === "bonus";
+  if (scored) signal(result);
   updateReadout();
   if (round.lives === 0) {
     finish();
@@ -438,7 +499,6 @@ function renderOutcome(result, index) {
   scheduleExpiry();
   if (result === "fade") return;
 
-  const scored = result === "hit" || result === "bonus";
   const penalised = result === "wrong" || result === "trap";
   if (index !== undefined && (scored || penalised)) animateTap(spots[index], scored);
 
@@ -456,7 +516,7 @@ function renderOutcome(result, index) {
   if (scored && round.streak > 0 && round.streak % 5 === 0) announce(`${round.streak} STREAK!`, "hot");
   if (round.lifeGained) announce("+1 LIFE ♥", "life");
 
-  signal(result);
+  if (!scored) signal(result);
 }
 
 function finish() {
@@ -489,6 +549,8 @@ function finish() {
 }
 
 function stopRoundAudio() {
+  for (const source of hitSources) source.stop();
+  hitSources.clear();
   for (const clip of [backgroundMusic, countdownTick, goSound, hitSound, wrongSpotSound, timeoutSound, twoSpotSound]) {
     clip.pause();
   }
