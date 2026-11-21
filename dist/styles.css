@@ -233,7 +233,9 @@ h2 { font-size: clamp(1.9rem, 9vw, 2.9rem); letter-spacing: -.045em; line-height
 .float.gold { color: var(--gold); }
 .float.bad { color: var(--danger); }
 
-.cabinet[data-screen="settings"] .arena, .cabinet[data-screen="results"] .arena { display: none; }
+.cabinet[data-screen="instructions"] .arena,
+.cabinet[data-screen="settings"] .arena,
+.cabinet[data-screen="results"] .arena { display: none; }
 .cabinet[data-screen="game"] { gap: 12px; touch-action: none; }
 html.playing, html.playing body {
   overflow: hidden;
@@ -264,9 +266,9 @@ html.playing, html.playing body {
 .action:active { transform: translateY(2px); }
 .toggle { min-width: 70px; min-height: 44px; border: 1px solid var(--line); border-radius: 8px; background: var(--background); }
 .toggle[aria-checked="true"] { border-color: var(--green); box-shadow: inset 0 -3px var(--green); }
-.instructions { padding: 6px 2px 0; display: grid; gap: 8px; }
+.instructions { padding: 14px; display: grid; gap: 12px; background: var(--panel); border: 1px solid var(--line); border-radius: 12px; }
 .instructions p { font-size: .875rem; letter-spacing: .035em; }
-.instructions dl { display: grid; gap: 5px; }
+.instructions dl { display: grid; gap: 8px; }
 .instructions dl div { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 2px 10px; font-size: .875rem; }
 .chip {
   display: inline-grid;
@@ -282,7 +284,10 @@ html.playing, html.playing body {
 .chip.bonus { background: var(--gold); color: #32135F; }
 .chip.trap { background: #2A0614; border: 2px solid var(--danger); color: var(--danger); }
 .settings, .results { gap: 16px; }
-.results { animation: arrival 190ms ease-out both; }
+.results { display: flex; flex: 1; flex-direction: column; }
+.result-summary { display: grid; gap: 16px; margin-block: auto; animation: arrival 190ms ease-out both; }
+.result-actions { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.5fr); gap: 10px; }
+.result-actions .primary { min-height: 48px; margin-bottom: 3px; font-size: 1rem; }
 .record { text-align: center; letter-spacing: .06em; color: var(--muted); }
 .record.new { color: var(--text); text-shadow: 0 2px #9B075D; }
 
@@ -308,7 +313,7 @@ html.playing, html.playing body {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .results { animation: none; }
+  .result-summary { animation: none; }
   .action:active { transform: none; }
   .countdown.go { animation-name: go-fade; }
 }

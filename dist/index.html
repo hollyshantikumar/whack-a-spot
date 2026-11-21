@@ -31,7 +31,12 @@
     <section class="screen" id="home" aria-label="Home">
       <div class="best"><span>BEST SCORE</span><strong id="home-best">0</strong></div>
       <button class="action primary" id="play" type="button">PLAY <kbd class="key-hint">ENTER</kbd></button>
+      <button class="action secondary" id="instructions-open" type="button">INSTRUCTIONS</button>
       <button class="action secondary" id="settings-open" type="button">SETTINGS</button>
+    </section>
+
+    <section class="screen" id="instructions" aria-labelledby="instructions-title" hidden>
+      <h2 id="instructions-title" tabindex="-1">INSTRUCTIONS</h2>
       <div class="instructions">
         <p>TAP LIT SPOTS BEFORE THEY VANISH.</p>
         <dl>
@@ -44,6 +49,7 @@
         </dl>
         <p class="keys-help">KEYBOARD: <kbd>Q</kbd>–<kbd>T</kbd> · <kbd>A</kbd>–<kbd>G</kbd> · <kbd>Z</kbd>–<kbd>B</kbd> MATCH THE THREE ROWS.</p>
       </div>
+      <button class="action secondary" id="instructions-home" type="button">HOME</button>
     </section>
 
     <section class="screen settings" id="settings" aria-labelledby="settings-title" hidden>
@@ -55,18 +61,22 @@
     </section>
 
     <section class="screen results" id="results" aria-labelledby="results-title" hidden>
-      <h2 id="results-title" tabindex="-1">GAME OVER</h2>
-      <p class="record" id="record">NEW PERSONAL BEST!</p>
-      <div class="readout">
-        <div class="meter"><span>FINAL SCORE</span><strong id="final-score">0</strong></div>
-        <div class="meter"><span>BEST SCORE</span><strong id="final-best">0</strong></div>
+      <div class="result-summary">
+        <h2 id="results-title" tabindex="-1">GAME OVER</h2>
+        <p class="record" id="record">NEW PERSONAL BEST!</p>
+        <div class="readout">
+          <div class="meter"><span>FINAL SCORE</span><strong id="final-score">0</strong></div>
+          <div class="meter"><span>BEST SCORE</span><strong id="final-best">0</strong></div>
+        </div>
+        <div class="readout">
+          <div class="meter small"><span>BEST STREAK</span><strong id="final-streak">0</strong></div>
+          <div class="meter small"><span>LEVEL REACHED</span><strong id="final-level">1</strong></div>
+        </div>
       </div>
-      <div class="readout">
-        <div class="meter small"><span>BEST STREAK</span><strong id="final-streak">0</strong></div>
-        <div class="meter small"><span>LEVEL REACHED</span><strong id="final-level">1</strong></div>
+      <div class="result-actions">
+        <button class="action secondary" id="results-home" type="button">HOME</button>
+        <button class="action primary" id="again" type="button">PLAY AGAIN <kbd class="key-hint">ENTER</kbd></button>
       </div>
-      <button class="action primary" id="again" type="button">PLAY AGAIN <kbd class="key-hint">ENTER</kbd></button>
-      <button class="action secondary" id="results-home" type="button">HOME</button>
     </section>
   </main>
 </body>

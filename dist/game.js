@@ -245,7 +245,7 @@ function jolt(strong) {
 function show(screen) {
   cabinet.dataset.screen = screen;
   document.documentElement.classList.toggle("playing", screen === "game");
-  for (const name of ["home", "settings", "results"]) byId(name).hidden = name !== screen;
+  for (const name of ["home", "instructions", "settings", "results"]) byId(name).hidden = name !== screen;
   byId("readout").hidden = screen !== "game";
   pauseButton.hidden = screen !== "game";
   clearTimeout(goTimer);
@@ -377,9 +377,10 @@ document.addEventListener("keydown", (event) => {
     return;
   }
 
-  if (phase === "settings" && event.key === "Escape") {
+  if ((phase === "settings" || phase === "instructions") && event.key === "Escape") {
+    const opener = byId(`${phase}-open`);
     home();
-    byId("settings-open").focus({ preventScroll: true });
+    opener.focus({ preventScroll: true });
   }
 });
 
@@ -522,6 +523,15 @@ pauseButton.addEventListener("click", () => {
     return;
   }
   suspendGame("paused");
+});
+byId("instructions-open").addEventListener("click", () => {
+  phase = "instructions";
+  show("instructions");
+  byId("instructions-title").focus();
+});
+byId("instructions-home").addEventListener("click", () => {
+  home();
+  byId("instructions-open").focus();
 });
 byId("settings-open").addEventListener("click", () => {
   phase = "settings";
