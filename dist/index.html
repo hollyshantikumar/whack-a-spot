@@ -21,6 +21,13 @@
       <div class="meter"><span>LIVES</span><strong class="hearts" id="lives" aria-label="3 lives">♥♥♥</strong></div>
       <div class="meter"><span>LEVEL</span><strong id="level">1</strong></div>
     </div>
+    <div class="speed" id="speed" hidden>
+      <strong id="speed-label">SPEED</strong>
+      <div class="speed-track" id="speed-track" role="meter" aria-labelledby="speed-label" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" aria-valuetext="2.00 seconds per spot">
+        <div class="speed-fill" aria-hidden="true"></div>
+        <span class="speed-marker" aria-hidden="true"></span>
+      </div>
+    </div>
     <div class="arena" id="arena">
       <div class="board" id="board" role="group" aria-label="Fifteen spots"></div>
       <div class="callout" id="callout" aria-live="polite"></div>

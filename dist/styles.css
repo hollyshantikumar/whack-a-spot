@@ -76,6 +76,27 @@ h2 { font-size: clamp(1.9rem, 9vw, 2.9rem); letter-spacing: -.045em; line-height
 .meter.small strong { font-size: 1.2rem; }
 .meter .hearts { font-size: 1.15rem; line-height: 1.55; letter-spacing: .02em; color: var(--pink); white-space: nowrap; overflow-wrap: normal; }
 
+.speed {
+  display: grid;
+  gap: 5px;
+  padding: 7px 12px;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  font-size: .75rem;
+  letter-spacing: .065em;
+}
+.speed-track { position: relative; height: 7px; border-radius: 8px; background: #503871; }
+.speed-fill { width: var(--speed-fill, 0%); height: 100%; border-radius: inherit; background: var(--cyan); }
+.speed-marker {
+  position: absolute;
+  inset: -1px auto -1px var(--speed-marker);
+  width: 2px;
+  transform: translateX(-50%);
+  background: var(--text);
+  box-shadow: 0 0 0 1px var(--panel);
+}
+
 .arena {
   position: relative;
   container-type: inline-size;
@@ -236,7 +257,7 @@ h2 { font-size: clamp(1.9rem, 9vw, 2.9rem); letter-spacing: -.045em; line-height
 .cabinet[data-screen="instructions"] .arena,
 .cabinet[data-screen="settings"] .arena,
 .cabinet[data-screen="results"] .arena { display: none; }
-.cabinet[data-screen="game"] { gap: 12px; touch-action: none; }
+.cabinet[data-screen="game"] { --speed-space: 48px; gap: 12px; touch-action: none; }
 html.playing, html.playing body {
   overflow: hidden;
   overscroll-behavior: none;
@@ -308,18 +329,18 @@ html.playing, html.playing body {
 @media (max-width: 520px) and (orientation: portrait) {
   .cabinet[data-screen="game"] { --spot-size: 120px; }
   .cabinet[data-screen="game"] .board { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: clamp(6px, 3cqw, 14px); --glyph: 13cqw; }
-  .cabinet[data-screen="game"] .arena { width: min(100%, calc((100svh - 260px) * .6)); align-self: center; }
+  .cabinet[data-screen="game"] .arena { width: min(100%, calc((100svh - 260px - var(--speed-space)) * .6)); align-self: center; }
   .cabinet[data-screen="game"][data-mode="hard"] .board { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: clamp(5px, 2.3cqw, 10px); --glyph: 10cqw; }
-  .cabinet[data-screen="game"][data-mode="hard"] .arena { width: min(100%, calc((100svh - 260px) * .76)); }
+  .cabinet[data-screen="game"][data-mode="hard"] .arena { width: min(100%, calc((100svh - 260px - var(--speed-space)) * .76)); }
 }
 
 @media (max-height: 480px) and (orientation: landscape) {
-  .cabinet[data-screen="game"] { width: min(100%, 395px); min-height: 100dvh; padding-block: 7px; gap: 5px; }
+  .cabinet[data-screen="game"] { --speed-space: 38px; width: min(100%, 395px); min-height: 100dvh; padding-block: 7px; gap: 5px; }
   .cabinet[data-screen="game"] h1 { font-size: 1.6rem; }
   .cabinet[data-screen="game"] .masthead { padding-bottom: 4px; }
   .cabinet[data-screen="game"] .meter { padding: 3px; }
-  .cabinet[data-screen="game"] .arena { width: min(100%, 300px, 109dvh - 117px); align-self: center; padding: 6px; }
-  .cabinet[data-screen="game"][data-mode="hard"] .arena { width: min(100%, 300px, max(100px, calc((100dvh - 158px) * 1.25))); }
+  .cabinet[data-screen="game"] .arena { width: min(100%, 300px, 109dvh - 117px - var(--speed-space)); align-self: center; padding: 6px; }
+  .cabinet[data-screen="game"][data-mode="hard"] .arena { width: min(100%, 300px, max(100px, calc((100dvh - 158px - var(--speed-space)) * 1.25))); }
   .cabinet[data-screen="game"] .spot { width: 100%; }
 }
 

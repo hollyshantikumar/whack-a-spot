@@ -1,11 +1,12 @@
 "use strict";
 
-const { Round, MODES, MAX_LIVES } = globalThis.WhackRules;
+const { Round, MODES, MAX_LIVES, START_DURATION, TWO_SPOT_DURATION } = globalThis.WhackRules;
 const byId = (id) => document.getElementById(id);
 const cabinet = byId("cabinet");
 const arena = byId("arena");
 const board = byId("board");
 const countdown = byId("countdown");
+const speedTrack = byId("speed-track");
 const pauseButton = byId("pause");
 const callout = byId("callout");
 const backgroundMusic = new Audio("background-music.mp3");
@@ -252,6 +253,7 @@ function show(screen) {
   document.documentElement.classList.toggle("playing", screen === "game");
   for (const name of ["home", "instructions", "settings", "results"]) byId(name).hidden = name !== screen;
   byId("readout").hidden = screen !== "game";
+  byId("speed").hidden = screen !== "game";
   byId("game-actions").hidden = screen !== "game";
   clearTimeout(goTimer);
   countdown.classList.remove("go", "paused");
@@ -278,6 +280,18 @@ function updateReadout() {
   lives.textContent = "♥".repeat(round.lives) + "♡".repeat(Math.max(0, MAX_LIVES - round.lives));
   lives.setAttribute("aria-label", `${round.lives} ${round.lives === 1 ? "life" : "lives"}`);
   byId("level").textContent = round.level;
+  updateSpeed();
+}
+
+function updateSpeed() {
+  const duration = round.realTargets.at(-1)?.total ?? round.duration;
+  const range = START_DURATION - round.config.minDuration;
+  const progress = 100 * (START_DURATION - duration) / range;
+  const threshold = 100 * (START_DURATION - TWO_SPOT_DURATION) / range;
+  speedTrack.style.setProperty("--speed-fill", `${progress}%`);
+  speedTrack.style.setProperty("--speed-marker", `${threshold}%`);
+  speedTrack.setAttribute("aria-valuenow", Math.round(progress));
+  speedTrack.setAttribute("aria-valuetext", `${(duration / 1000).toFixed(2)} seconds per spot`);
 }
 
 function home() {
@@ -332,6 +346,7 @@ function startCountdown() {
       setBoardEnabled(true);
       if (round.targets.length) round.resume(now);
       else round.fillTargets(now);
+      updateSpeed();
       paintTargets(round.targets);
       playBackgroundMusic();
       playClip(goSound);

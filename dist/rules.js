@@ -163,7 +163,7 @@
     }
   }
 
-  const rules = { Round, MODES, SPOT_COUNT, MAX_LIVES, START_LIVES };
+  const rules = { Round, MODES, SPOT_COUNT, MAX_LIVES, START_LIVES, START_DURATION, TWO_SPOT_DURATION };
   if (typeof module === "object" && module.exports) module.exports = rules;
   else globalThis.WhackRules = rules;
 })();
