@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#32135F">
+  <meta name="description" content="Tap the neon spots before they disappear in Whack-a-Spot, a quick arcade reaction game.">
+  <title>WHACK-A-SPOT</title>
+  <link rel="stylesheet" href="styles.css">
+  <script src="rules.js" defer></script>
+  <script src="game.js" defer></script>
+</head>
+<body>
+  <main class="cabinet" id="cabinet" data-screen="home">
+    <header class="masthead">
+      <h1>WHACK-A-SPOT</h1>
+    </header>
+
+    <div class="readout" id="readout" hidden>
+      <div class="meter"><span>SCORE</span><strong id="score">0</strong></div>
+      <div class="meter"><span>LIVES</span><strong id="lives">1</strong></div>
+    </div>
+    <div class="arena" id="arena">
+      <div class="board" id="board" role="group" aria-label="Fifteen spots"></div>
+      <div class="countdown" id="countdown" role="status" hidden></div>
+    </div>
+
+    <section class="screen" id="home" aria-label="Home">
+      <div class="best"><span>BEST SCORE</span><strong id="home-best">0</strong></div>
+      <button class="action primary" id="play" type="button">PLAY</button>
+      <button class="action secondary" id="settings-open" type="button">SETTINGS</button>
+      <div class="instructions">
+        <p>TAP THE LIT SPOT BEFORE IT VANISHES.</p>
+        <dl>
+          <div><dt>HIT</dt><dd>+1 POINT · +1 LIFE</dd></div>
+          <div><dt>MISS</dt><dd>−1 LIFE</dd></div>
+          <div><dt>WRONG SPOT</dt><dd>−1 POINT · −1 LIFE</dd></div>
+        </dl>
+      </div>
+    </section>
+
+    <section class="screen settings" id="settings" aria-labelledby="settings-title" hidden>
+      <h2 id="settings-title">SETTINGS</h2>
+      <div class="setting"><span id="sound-label">SOUND EFFECTS</span><button id="sound" type="button" class="toggle" role="switch" aria-checked="true" aria-labelledby="sound-label">ON</button></div>
+      <div class="setting"><span id="vibration-label">VIBRATION</span><button id="vibration" type="button" class="toggle" role="switch" aria-checked="true" aria-labelledby="vibration-label">ON</button></div>
+      <button class="action secondary" id="settings-home" type="button">HOME</button>
+    </section>
+
+    <section class="screen results" id="results" aria-labelledby="results-title" hidden>
+      <h2 id="results-title" tabindex="-1">GAME OVER</h2>
+      <p class="record" id="record" hidden>NEW PERSONAL BEST!</p>
+      <div class="readout">
+        <div class="meter"><span>FINAL SCORE</span><strong id="final-score">0</strong></div>
+        <div class="meter"><span>BEST SCORE</span><strong id="final-best">0</strong></div>
+      </div>
+      <button class="action primary" id="again" type="button">PLAY AGAIN</button>
+      <button class="action secondary" id="results-home" type="button">HOME</button>
+    </section>
+  </main>
+</body>
+</html>
