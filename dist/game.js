@@ -252,7 +252,7 @@ function show(screen) {
   document.documentElement.classList.toggle("playing", screen === "game");
   for (const name of ["home", "instructions", "settings", "results"]) byId(name).hidden = name !== screen;
   byId("readout").hidden = screen !== "game";
-  pauseButton.hidden = screen !== "game";
+  byId("game-actions").hidden = screen !== "game";
   clearTimeout(goTimer);
   countdown.classList.remove("go", "paused");
   countdown.hidden = true;
@@ -282,8 +282,12 @@ function updateReadout() {
 
 function home() {
   clearTimeout(timer);
+  stopRoundAudio();
   gameOverSound.pause();
   phase = "home";
+  round = null;
+  for (const label of arena.querySelectorAll(".float")) label.remove();
+  for (const animation of arena.getAnimations()) animation.cancel();
   byId("home-best").textContent = preferences.best;
   byId("hard-best").textContent = preferences.hardBest;
   show("home");
@@ -469,17 +473,17 @@ function finish() {
   signal("over");
 }
 
+function stopRoundAudio() {
+  for (const clip of [backgroundMusic, countdownTick, goSound, hitSound, wrongSpotSound, timeoutSound, twoSpotSound]) {
+    clip.pause();
+  }
+}
+
 function suspendGame(nextPhase) {
   if (phase !== "playing" && phase !== "countdown") return;
   clearTimeout(timer);
   clearTimeout(goTimer);
-  backgroundMusic.pause();
-  countdownTick.pause();
-  goSound.pause();
-  hitSound.pause();
-  wrongSpotSound.pause();
-  timeoutSound.pause();
-  twoSpotSound.pause();
+  stopRoundAudio();
   if (phase === "playing") {
     round.suspend(performance.now());
     if (round.lives === 0) {
@@ -555,7 +559,7 @@ byId("settings-open").addEventListener("click", () => {
   show("settings");
   byId("sound").focus({ preventScroll: true });
 });
-for (const id of ["settings-home", "results-home"]) {
+for (const id of ["game-home", "settings-home", "results-home"]) {
   byId(id).addEventListener("click", () => {
     home();
     byId("play").focus({ preventScroll: true });

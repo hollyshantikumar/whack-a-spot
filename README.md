@@ -35,6 +35,6 @@ Classic uses 15 spots with a 350ms minimum. Hard Mode uses 20 spots with a 280ms
 
 Hits and misses both advance the pace (trap spots do not) because both cause new spots to appear. Each active spot keeps its own deadline. At the two-spot threshold, hitting or missing one spot replaces it while the other continues counting down.
 
-Use PAUSE to freeze the board and its timers. RESUME starts a fresh countdown before the remaining reaction time runs again.
+Use PAUSE to freeze the board and its timers. RESUME starts a fresh countdown before the remaining reaction time runs again. HOME ends the run immediately without saving its score, whether the game is active or paused.
 
 Sound and vibration default to ON. Vibration depends on the device and browser. Best scores and preferences are local to each browser profile and site address.
